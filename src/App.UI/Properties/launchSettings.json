@@ -1,0 +1,22 @@
+{
+    "profiles": {
+        "Development": {
+            "commandName": "Project",
+            "environmentVariables": {
+                "DOTNET_ENVIRONMENT": "Development"
+            }
+        },
+        "QA": {
+            "commandName": "Project",
+            "environmentVariables": {
+                "DOTNET_ENVIRONMENT": "QA"
+            }
+        },
+        "Production": {
+            "commandName": "Project",
+            "environmentVariables": {
+                "DOTNET_ENVIRONMENT": "Production"
+            }
+        }
+    }
+}
