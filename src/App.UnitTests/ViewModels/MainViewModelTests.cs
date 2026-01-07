@@ -45,9 +45,9 @@ public class MainViewModelTests
         // Assert
         var expectedTitle = $"Localized_{Constants.Localization.Keys.AppTitle}";
 #if DEBUG
-        expectedTitle = $"{expectedTitle} {Constants.UI.DebugSuffix}";
+        expectedTitle = $"{expectedTitle} ({Constants.UI.DebugSuffix})";
 #elif QA
-        expectedTitle = $"{expectedTitle} {Constants.UI.QASuffix}";
+        expectedTitle = $"{expectedTitle} ({Constants.UI.QASuffix})";
 #endif
         Assert.Equal(expectedTitle, vm.Title);
         Assert.Equal($"Localized_{Constants.Localization.Keys.WelcomeMessage}", vm.WelcomeMessage);
