@@ -98,12 +98,12 @@ public partial class App : System.Windows.Application
     {
         try
         {
-            // Load App.Infrastructure.dll
+            //Load App.Infrastructure.dll
             var assemblyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Constants.Infrastructure.InfrastructureDll);
             if (!File.Exists(assemblyPath))
             {
                 // Fallback for development if bin folder structure is different
-                assemblyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "App.Infrastructure", "bin", "Debug", "net8.0", Constants.Infrastructure.InfrastructureDll);
+                assemblyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "App.Infrastructure", "bin", "Debug", "net10.0", Constants.Infrastructure.InfrastructureDll);
             }
 
             var assembly = Assembly.LoadFrom(assemblyPath);
@@ -118,6 +118,8 @@ public partial class App : System.Windows.Application
             {
                 throw new InvalidOperationException($"Could not find {Constants.Infrastructure.RegisterServicesMethod} method in {Constants.Infrastructure.InfrastructureDll}.");
             }
+            // Register infrastructure services into the provided IServiceCollection
+            //ContainerBuilder.RegisterServices(services, configuration);
         }
         catch (Exception ex)
         {

@@ -1,6 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using App.Application.Interfaces;
+﻿using App.Application.Interfaces;
 using App.Common;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AppUI.ViewModels;
 

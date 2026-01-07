@@ -1,5 +1,6 @@
 ﻿using App.Application.Interfaces;
 using App.Common;
+using App.Domain.Entities;
 using AppUI.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -14,7 +15,6 @@ namespace AppUI.ViewModels;
 public partial class MainViewModel : BaseViewModel
 {
     private readonly ILogger<MainViewModel> _Logger;
-    private readonly ISampleService _SampleService;
     private readonly IUnitOfWork _UnitOfWork;
     private readonly ILocalizationService _LocalizationService;
     private readonly IServiceProvider _ServiceProvider;
@@ -22,15 +22,16 @@ public partial class MainViewModel : BaseViewModel
     [ObservableProperty]
     private string _WelcomeMessage = string.Empty;
 
+    [ObservableProperty]
+    private IEnumerable<UserSetting> _UserSettings = System.Linq.Enumerable.Empty<UserSetting>();
+
     public MainViewModel(
         ILogger<MainViewModel> logger,
-        ISampleService sampleService,
         IUnitOfWork unitOfWork,
         ILocalizationService localizationService,
         IServiceProvider serviceProvider)
     {
         _Logger = logger;
-        _SampleService = sampleService;
         _UnitOfWork = unitOfWork;
         _LocalizationService = localizationService;
         _ServiceProvider = serviceProvider;
@@ -71,8 +72,28 @@ public partial class MainViewModel : BaseViewModel
         IsBusy = true;
         try
         {
-            var samples = await _SampleService.GetSamplesAsync();
-            _Logger.LogInformation("Loaded {Count} samples.", samples.Count());
+            var repo = _UnitOfWork?.Repository<UserSetting>();
+            if (repo != null)
+            {
+                try
+                {
+                    var userSettings = await repo.GetAllAsync();
+                    UserSettings = userSettings;
+                    _Logger.LogInformation("Loaded {Count} user settings.", UserSettings?.Count() ?? 0);
+                }
+                catch (PlatformNotSupportedException ex)
+                {
+                    _Logger.LogWarning(ex, "Skipping user settings load: platform does not support the SQL client.");
+                }
+                catch (Exception ex)
+                {
+                    _Logger.LogError(ex, "Failed loading user settings.");
+                }
+            }
+            else
+            {
+                _Logger.LogDebug("No UserSetting repository available; skipping user settings load.");
+            }
         }
         finally
         {

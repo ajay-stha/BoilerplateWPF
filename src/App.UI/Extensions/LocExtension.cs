@@ -1,7 +1,7 @@
-﻿using System.Windows.Data;
-using System.Windows.Markup;
-using App.Application.Interfaces;
+﻿using App.Application.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using System.Windows.Data;
+using System.Windows.Markup;
 
 namespace AppUI.Extensions;
 

@@ -11,7 +11,7 @@ public partial class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
-
+    public AppDbContext() { }
     public DbSet<UserSetting> UserSettings => Set<UserSetting>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
