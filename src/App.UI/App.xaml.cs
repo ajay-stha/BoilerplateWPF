@@ -1,7 +1,5 @@
-﻿using System.IO;
-using System.Reflection;
-using System.Windows;
-using App.Application.Interfaces;
+﻿using App.Application.Interfaces;
+using App.Common;
 using AppUI.ViewModels;
 using AppUI.Views;
 using Microsoft.Extensions.Configuration;
@@ -9,7 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using App.Common;
+using System.Configuration;
+using System.IO;
+using System.Reflection;
+using System.Windows;
 
 namespace AppUI;
 
@@ -38,11 +39,15 @@ public partial class App : System.Windows.Application
             _Host = Host.CreateDefaultBuilder()
                 .ConfigureAppConfiguration((context, config) =>
                 {
-                    var env = context.HostingEnvironment;
                     config.SetBasePath(Directory.GetCurrentDirectory());
                     config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-                    config.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+#if DEBUG
+                    config.AddJsonFile($"appsettings.{Constants.UI.DebugSuffix}.json", optional: true, reloadOnChange: true);
+#elif QA
+                    config.AddJsonFile($"appsettings.{Constants.UI.QASuffix}.json", optional: true, reloadOnChange: true);
+#endif
                     config.AddEnvironmentVariables();
+
                 })
                 .ConfigureServices((context, services) =>
                 {
@@ -127,14 +132,14 @@ public partial class App : System.Windows.Application
         var logger = ServiceProvider.GetRequiredService<ILogger<App>>();
 
         logger.LogInformation("Initializing application components...");
-        
+
         // Load default culture from settings
         var config = ServiceProvider.GetRequiredService<IConfiguration>();
         var defaultLang = config[$"{Constants.Sections.AppSettings}:DefaultLanguage"] ?? Constants.Localization.DefaultCulture;
         localizationService.SetCulture(defaultLang);
 
         // Simulate database/API check
-        await Task.Delay(2000); 
+        await Task.Delay(2000);
 
         logger.LogInformation("Application initialization complete.");
     }

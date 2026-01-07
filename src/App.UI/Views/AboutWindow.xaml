@@ -23,7 +23,7 @@
                 FontSize="14"
                 Text="{Binding AppVersion, StringFormat='Version {0}'}" />
             <TextBlock
-                Text="{Binding Description}"
+                Text="{Binding AppDescription}"
                 TextAlignment="Center"
                 TextWrapping="Wrap" />
             <Button

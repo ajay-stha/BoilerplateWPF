@@ -1,5 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using App.Application.Interfaces;
 using App.Common;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AppUI.ViewModels;
 
@@ -18,21 +19,33 @@ public abstract partial class BaseViewModel : ObservableObject
     private string _AppVersion = Constants.UI.DefaultVersion;
 
     [ObservableProperty]
+    private string _AppDescription = string.Empty;
+
+    [ObservableProperty]
     private bool _IsBusy;
 
-    protected void LoadMetadata()
+    protected void LoadMetadata(ILocalizationService localizationService)
     {
         var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-        var version = assembly.GetName().Version;
-        AppVersion = version?.ToString() ?? Constants.UI.DefaultVersion;
+        AppVersion = assembly.GetName().Version?.ToString() ?? Constants.UI.DefaultVersion;
         
-        // Default AppTitle if not overwritten by localized version
-        if (string.IsNullOrEmpty(AppTitle))
-        {
-            AppTitle = assembly.GetCustomAttributes(typeof(System.Reflection.AssemblyTitleAttribute), false)
-                .FirstOrDefault() is System.Reflection.AssemblyTitleAttribute titleAttr 
-                ? titleAttr.Title 
-                : Constants.UI.DefaultAppTitle;
-        }
+        UpdateMetadata(localizationService);
+    }
+
+    protected virtual void UpdateMetadata(ILocalizationService localizationService)
+    {
+        AppDescription = localizationService.GetString(Constants.Localization.Keys.AboutDescription);
+        AppTitle = GetBrandedText(localizationService.GetString(Constants.Localization.Keys.AppTitle) ?? Constants.UI.DefaultAppTitle);
+    }
+
+    protected string GetBrandedText(string text)
+    {
+#if DEBUG
+        return $"{text} ({Constants.UI.DebugSuffix})";
+#elif QA
+        return $"{text} ({Constants.UI.QASuffix})";
+#else
+        return text;
+#endif
     }
 }

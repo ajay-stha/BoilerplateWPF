@@ -1,11 +1,11 @@
-using Xunit;
+using App.Application.DTOs;
 using App.Application.Interfaces;
-using AppUI.ViewModels;
 using App.Common;
+using AppUI.ViewModels;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
-using App.Application.DTOs;
-using Microsoft.Extensions.Hosting;
+using Xunit;
 
 namespace App.UnitTests.ViewModels;
 
@@ -40,11 +40,16 @@ public class MainViewModelTests
             _MockSampleService.Object,
             _MockUnitOfWork.Object,
             _MockLocalizationService.Object,
-            _MockServiceProvider.Object,
-            _MockEnvironment.Object);
+            _MockServiceProvider.Object);
 
         // Assert
-        Assert.Equal($"Localized_{Constants.Localization.Keys.AppTitle}", vm.Title);
+        var expectedTitle = $"Localized_{Constants.Localization.Keys.AppTitle}";
+#if DEBUG
+        expectedTitle = $"{expectedTitle} {Constants.UI.DebugSuffix}";
+#elif QA
+        expectedTitle = $"{expectedTitle} {Constants.UI.QASuffix}";
+#endif
+        Assert.Equal(expectedTitle, vm.Title);
         Assert.Equal($"Localized_{Constants.Localization.Keys.WelcomeMessage}", vm.WelcomeMessage);
     }
 
@@ -60,8 +65,7 @@ public class MainViewModelTests
             _MockSampleService.Object,
             _MockUnitOfWork.Object,
             _MockLocalizationService.Object,
-            _MockServiceProvider.Object,
-            _MockEnvironment.Object);
+            _MockServiceProvider.Object);
 
         // Act
         await vm.LoadDataCommand.ExecuteAsync(null);

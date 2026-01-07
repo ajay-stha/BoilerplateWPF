@@ -1,6 +1,6 @@
+using App.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System.IO;
 
 namespace App.Infrastructure.Persistence;
 
@@ -13,21 +13,15 @@ public partial class AppDbContext
             IConfiguration configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+#if DEBUG
+                    .AddJsonFile($"appsettings.{Constants.UI.DebugSuffix}.json", optional: true, reloadOnChange: true)
+#elif QA
+                    .AddJsonFile($"appsettings.{Constants.UI.QASuffix}.json", optional: true, reloadOnChange: true)
+#endif
                 .Build();
 
-            string connectionString = string.Empty;
-#if DEBUG
-            connectionString = configuration.GetConnectionString("DevConnection") 
-                               ?? configuration.GetConnectionString("DefaultConnection") 
-                               ?? string.Empty;
-#elif QA
-            connectionString = configuration.GetConnectionString("QAConnection") 
-                               ?? configuration.GetConnectionString("DefaultConnection") 
-                               ?? string.Empty;
-#else
-            connectionString = configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
-#endif
-            
+            string connectionString = configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
+
             if (!string.IsNullOrEmpty(connectionString))
             {
                 optionsBuilder.UseSqlServer(connectionString, (sqlServerOptions) =>
@@ -38,7 +32,7 @@ public partial class AppDbContext
                 });
             }
         }
-        
+
         optionsBuilder.EnableSensitiveDataLogging();
     }
 }

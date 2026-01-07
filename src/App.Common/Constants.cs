@@ -61,6 +61,8 @@ public static class Constants
         public const string DefaultStatus = "Initializing...";
         public const string DefaultAppTitle = "Enterprise WPF";
         public const string SplashWindowTitle = "SplashWindow";
+        public const string DebugSuffix = "DEV";
+        public const string QASuffix = "QA";
     }
 
     /// <summary>

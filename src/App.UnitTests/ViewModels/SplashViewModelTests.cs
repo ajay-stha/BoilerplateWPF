@@ -1,9 +1,9 @@
-using Xunit;
 using App.Application.Interfaces;
-using AppUI.ViewModels;
 using App.Common;
-using Moq;
+using AppUI.ViewModels;
 using Microsoft.Extensions.Hosting;
+using Moq;
+using Xunit;
 
 namespace App.UnitTests.ViewModels;
 
@@ -24,10 +24,16 @@ public class SplashViewModelTests
     public void Constructor_ShouldInitializeProperties()
     {
         // Act
-        var vm = new SplashViewModel(_MockLocalizationService.Object, _MockEnvironment.Object);
+        var vm = new SplashViewModel(_MockLocalizationService.Object);
 
         // Assert
-        Assert.Equal($"Localized_{Constants.Localization.Keys.AppTitle}", vm.AppTitle);
+        var expectedTitle = $"Localized_{Constants.Localization.Keys.AppTitle}";
+#if DEBUG
+        expectedTitle = $"{expectedTitle} {Constants.UI.DebugSuffix}";
+#elif QA
+        expectedTitle = $"{expectedTitle} {Constants.UI.QASuffix}";
+#endif
+        Assert.Equal(expectedTitle, vm.AppTitle);
         Assert.Equal($"Localized_{Constants.Localization.Keys.Loading}", vm.Message);
         Assert.False(string.IsNullOrEmpty(vm.AppVersion));
     }

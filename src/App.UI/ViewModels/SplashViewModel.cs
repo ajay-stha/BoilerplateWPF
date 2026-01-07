@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using App.Application.Interfaces;
 using App.Common;
-using Microsoft.Extensions.Hosting;
 
 namespace AppUI.ViewModels;
 
@@ -13,13 +12,9 @@ public partial class SplashViewModel : BaseViewModel
     [ObservableProperty]
     private string _Message = Constants.UI.DefaultStatus;
 
-    public SplashViewModel(ILocalizationService localizationService, IHostEnvironment environment)
+    public SplashViewModel(ILocalizationService localizationService)
     {
-        LoadMetadata();
-        var baseTitle = localizationService.GetString(Constants.Localization.Keys.AppTitle);
-        AppTitle = environment.IsProduction() 
-            ? baseTitle 
-            : $"{baseTitle} ({environment.EnvironmentName})";
+        LoadMetadata(localizationService);
         Message = localizationService.GetString(Constants.Localization.Keys.Loading);
     }
 }

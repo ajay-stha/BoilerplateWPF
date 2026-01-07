@@ -1,11 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using App.Application.Interfaces;
+﻿using App.Application.Interfaces;
 using App.Common;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
 using AppUI.Views;
-using Microsoft.Extensions.Hosting;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace AppUI.ViewModels;
 
@@ -19,7 +18,6 @@ public partial class MainViewModel : BaseViewModel
     private readonly IUnitOfWork _UnitOfWork;
     private readonly ILocalizationService _LocalizationService;
     private readonly IServiceProvider _ServiceProvider;
-    private readonly IHostEnvironment _Environment;
 
     [ObservableProperty]
     private string _WelcomeMessage = string.Empty;
@@ -29,31 +27,28 @@ public partial class MainViewModel : BaseViewModel
         ISampleService sampleService,
         IUnitOfWork unitOfWork,
         ILocalizationService localizationService,
-        IServiceProvider serviceProvider,
-        IHostEnvironment environment)
+        IServiceProvider serviceProvider)
     {
         _Logger = logger;
         _SampleService = sampleService;
         _UnitOfWork = unitOfWork;
         _LocalizationService = localizationService;
         _ServiceProvider = serviceProvider;
-        _Environment = environment;
 
-        UpdateTitle();
+        UpdateMetadata(_LocalizationService);
         WelcomeMessage = _LocalizationService.GetString(Constants.Localization.Keys.WelcomeMessage);
-        
-        _LocalizationService.CultureChanged += (s, e) => {
-            UpdateTitle();
+
+        _LocalizationService.CultureChanged += (s, e) =>
+        {
+            UpdateMetadata(_LocalizationService);
             WelcomeMessage = _LocalizationService.GetString(Constants.Localization.Keys.WelcomeMessage);
         };
     }
 
-    private void UpdateTitle()
+    protected override void UpdateMetadata(ILocalizationService localizationService)
     {
-        var baseTitle = _LocalizationService.GetString(Constants.Localization.Keys.AppTitle);
-        Title = _Environment.IsProduction() 
-            ? baseTitle 
-            : $"{baseTitle} ({_Environment.EnvironmentName})";
+        base.UpdateMetadata(localizationService);
+        Title = AppTitle;
     }
 
     [RelayCommand]
