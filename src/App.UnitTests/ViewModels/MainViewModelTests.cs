@@ -1,6 +1,7 @@
 using Xunit;
 using App.Application.Interfaces;
 using AppUI.ViewModels;
+using App.Common;
 using Microsoft.Extensions.Logging;
 using Moq;
 using App.Application.DTOs;
@@ -43,8 +44,8 @@ public class MainViewModelTests
             _MockEnvironment.Object);
 
         // Assert
-        Assert.Equal("Localized_AppTitle", vm.Title);
-        Assert.Equal("Localized_WelcomeMessage", vm.WelcomeMessage);
+        Assert.Equal($"Localized_{Constants.Localization.Keys.AppTitle}", vm.Title);
+        Assert.Equal($"Localized_{Constants.Localization.Keys.WelcomeMessage}", vm.WelcomeMessage);
     }
 
     [Fact]

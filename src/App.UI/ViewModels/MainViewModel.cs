@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using App.Application.Interfaces;
+using App.Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using AppUI.Views;
@@ -39,27 +40,27 @@ public partial class MainViewModel : BaseViewModel
         _Environment = environment;
 
         UpdateTitle();
-        WelcomeMessage = _LocalizationService.GetString("WelcomeMessage");
+        WelcomeMessage = _LocalizationService.GetString(Constants.Localization.Keys.WelcomeMessage);
         
         _LocalizationService.CultureChanged += (s, e) => {
             UpdateTitle();
-            WelcomeMessage = _LocalizationService.GetString("WelcomeMessage");
+            WelcomeMessage = _LocalizationService.GetString(Constants.Localization.Keys.WelcomeMessage);
         };
     }
 
     private void UpdateTitle()
     {
-        var baseTitle = _LocalizationService.GetString("AppTitle");
+        var baseTitle = _LocalizationService.GetString(Constants.Localization.Keys.AppTitle);
         Title = _Environment.IsProduction() 
             ? baseTitle 
             : $"{baseTitle} ({_Environment.EnvironmentName})";
     }
 
     [RelayCommand]
-    private void SwitchToGerman() => _LocalizationService.SetCulture("de-DE");
+    private void SwitchToGerman() => _LocalizationService.SetCulture(Constants.Localization.German);
 
     [RelayCommand]
-    private void SwitchToEnglish() => _LocalizationService.SetCulture("en-US");
+    private void SwitchToEnglish() => _LocalizationService.SetCulture(Constants.Localization.English);
 
     [RelayCommand]
     private void ShowAbout()

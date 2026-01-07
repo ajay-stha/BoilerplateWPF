@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using App.Common;
 
 namespace AppUI;
 
@@ -28,7 +29,7 @@ public partial class App : System.Windows.Application
         // 1. Initial Logging setup
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
-            .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+            .WriteTo.File(Constants.Infrastructure.LogFileName, rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
         try
@@ -93,16 +94,16 @@ public partial class App : System.Windows.Application
         try
         {
             // Load App.Infrastructure.dll
-            var assemblyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App.Infrastructure.dll");
+            var assemblyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Constants.Infrastructure.InfrastructureDll);
             if (!File.Exists(assemblyPath))
             {
                 // Fallback for development if bin folder structure is different
-                assemblyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "App.Infrastructure", "bin", "Debug", "net8.0", "App.Infrastructure.dll");
+                assemblyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "App.Infrastructure", "bin", "Debug", "net8.0", Constants.Infrastructure.InfrastructureDll);
             }
 
             var assembly = Assembly.LoadFrom(assemblyPath);
-            var type = assembly.GetType("App.Infrastructure.DI.ContainerBuilder");
-            var method = type?.GetMethod("RegisterServices", BindingFlags.Public | BindingFlags.Static);
+            var type = assembly.GetType(Constants.Infrastructure.ContainerBuilderType);
+            var method = type?.GetMethod(Constants.Infrastructure.RegisterServicesMethod, BindingFlags.Public | BindingFlags.Static);
 
             if (method != null)
             {
@@ -110,7 +111,7 @@ public partial class App : System.Windows.Application
             }
             else
             {
-                throw new InvalidOperationException("Could not find RegisterServices method in App.Infrastructure.");
+                throw new InvalidOperationException($"Could not find {Constants.Infrastructure.RegisterServicesMethod} method in {Constants.Infrastructure.InfrastructureDll}.");
             }
         }
         catch (Exception ex)
@@ -129,7 +130,7 @@ public partial class App : System.Windows.Application
         
         // Load default culture from settings
         var config = ServiceProvider.GetRequiredService<IConfiguration>();
-        var defaultLang = config["AppSettings:DefaultLanguage"] ?? "en-US";
+        var defaultLang = config[$"{Constants.Sections.AppSettings}:DefaultLanguage"] ?? Constants.Localization.DefaultCulture;
         localizationService.SetCulture(defaultLang);
 
         // Simulate database/API check

@@ -82,4 +82,7 @@
   <data name="Language" xml:space="preserve">
     <value>Language</value>
   </data>
+  <data name="AboutDescription" xml:space="preserve">
+    <value>Production-ready WPF Clean Architecture Boilerplate.</value>
+  </data>
 </root>

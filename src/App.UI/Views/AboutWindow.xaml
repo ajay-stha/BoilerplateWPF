@@ -21,7 +21,7 @@
             <TextBlock
                 Margin="0,0,0,15"
                 FontSize="14"
-                Text="{Binding Version, StringFormat='Version {0}'}" />
+                Text="{Binding AppVersion, StringFormat='Version {0}'}" />
             <TextBlock
                 Text="{Binding Description}"
                 TextAlignment="Center"

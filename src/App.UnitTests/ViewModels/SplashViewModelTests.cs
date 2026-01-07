@@ -1,6 +1,7 @@
 using Xunit;
 using App.Application.Interfaces;
 using AppUI.ViewModels;
+using App.Common;
 using Moq;
 using Microsoft.Extensions.Hosting;
 
@@ -26,8 +27,8 @@ public class SplashViewModelTests
         var vm = new SplashViewModel(_MockLocalizationService.Object, _MockEnvironment.Object);
 
         // Assert
-        Assert.Equal("Localized_AppTitle", vm.AppTitle);
-        Assert.Equal("Localized_Loading", vm.Message);
-        Assert.False(string.IsNullOrEmpty(vm.Version));
+        Assert.Equal($"Localized_{Constants.Localization.Keys.AppTitle}", vm.AppTitle);
+        Assert.Equal($"Localized_{Constants.Localization.Keys.Loading}", vm.Message);
+        Assert.False(string.IsNullOrEmpty(vm.AppVersion));
     }
 }

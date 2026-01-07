@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using App.Application.Interfaces;
+using App.Common;
 using Microsoft.Extensions.Hosting;
 
 namespace AppUI.ViewModels;
@@ -10,25 +11,17 @@ namespace AppUI.ViewModels;
 public partial class AboutViewModel : BaseViewModel
 {
     [ObservableProperty]
-    private string _Version = "1.0.0";
-
-    [ObservableProperty]
-    private string _Description = "WPF Boilerplate.";
-
-    [ObservableProperty]
-    private string _AppTitle = string.Empty;
+    private string _Description = string.Empty;
 
     public AboutViewModel(ILocalizationService localizationService, IHostEnvironment environment, MainViewModel mainViewModel)
     {
-        var baseTitle = localizationService.GetString("About");
+        LoadMetadata();
+        Description = localizationService.GetString(Constants.Localization.Keys.AboutDescription);
+        var baseTitle = localizationService.GetString(Constants.Localization.Keys.About);
         Title = environment.IsProduction() 
             ? baseTitle 
             : $"{baseTitle} ({environment.EnvironmentName})";
         
         AppTitle = mainViewModel.Title;
-        
-        var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-        var version = assembly.GetName().Version;
-        Version = version?.ToString() ?? "1.0.0";
     }
 }

@@ -44,7 +44,7 @@
                         HorizontalAlignment="Center"
                         FontSize="12"
                         Foreground="{StaticResource MutedTextBrush}"
-                        Text="{Binding Version, StringFormat='Version {0}'}" />
+                        Text="{Binding AppVersion, StringFormat='Version {0}'}" />
 
                     <ProgressBar
                         Height="4"
