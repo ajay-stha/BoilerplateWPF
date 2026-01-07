@@ -27,6 +27,7 @@
     <None Update="appsettings.json;appsettings.*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Resource Include="Resources\Images\icon.png" />
   </ItemGroup>
 
   <Target Name="CopyInfrastructureAssets" AfterTargets="Build">

@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using App.Application.Interfaces;
+using Microsoft.Extensions.Hosting;
 
 namespace AppUI.ViewModels;
 
@@ -17,9 +18,12 @@ public partial class SplashViewModel : BaseViewModel
     [ObservableProperty]
     private string _AppTitle = "Enterprise WPF";
 
-    public SplashViewModel(ILocalizationService localizationService)
+    public SplashViewModel(ILocalizationService localizationService, IHostEnvironment environment)
     {
-        AppTitle = localizationService.GetString("AppTitle");
+        var baseTitle = localizationService.GetString("AppTitle");
+        AppTitle = environment.IsProduction() 
+            ? baseTitle 
+            : $"{baseTitle} ({environment.EnvironmentName})";
         Message = localizationService.GetString("Loading");
         
         // Version is usually set from assembly metadata in a real app

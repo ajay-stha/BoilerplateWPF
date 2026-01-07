@@ -4,6 +4,7 @@ using App.Application.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using AppUI.Views;
+using Microsoft.Extensions.Hosting;
 
 namespace AppUI.ViewModels;
 
@@ -17,6 +18,7 @@ public partial class MainViewModel : BaseViewModel
     private readonly IUnitOfWork _UnitOfWork;
     private readonly ILocalizationService _LocalizationService;
     private readonly IServiceProvider _ServiceProvider;
+    private readonly IHostEnvironment _Environment;
 
     [ObservableProperty]
     private string _WelcomeMessage = string.Empty;
@@ -26,21 +28,31 @@ public partial class MainViewModel : BaseViewModel
         ISampleService sampleService,
         IUnitOfWork unitOfWork,
         ILocalizationService localizationService,
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider,
+        IHostEnvironment environment)
     {
         _Logger = logger;
         _SampleService = sampleService;
         _UnitOfWork = unitOfWork;
         _LocalizationService = localizationService;
         _ServiceProvider = serviceProvider;
+        _Environment = environment;
 
-        Title = _LocalizationService.GetString("AppTitle");
+        UpdateTitle();
         WelcomeMessage = _LocalizationService.GetString("WelcomeMessage");
         
         _LocalizationService.CultureChanged += (s, e) => {
-            Title = _LocalizationService.GetString("AppTitle");
+            UpdateTitle();
             WelcomeMessage = _LocalizationService.GetString("WelcomeMessage");
         };
+    }
+
+    private void UpdateTitle()
+    {
+        var baseTitle = _LocalizationService.GetString("AppTitle");
+        Title = _Environment.IsProduction() 
+            ? baseTitle 
+            : $"{baseTitle} ({_Environment.EnvironmentName})";
     }
 
     [RelayCommand]
