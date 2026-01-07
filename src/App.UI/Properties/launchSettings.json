@@ -1,6 +1,6 @@
 {
     "profiles": {
-        "Development": {
+        "Debug": {
             "commandName": "Project",
             "environmentVariables": {
                 "DOTNET_ENVIRONMENT": "DEV"
