@@ -2,7 +2,6 @@ using App.Application.DTOs;
 using App.Application.Interfaces;
 using App.Common;
 using AppUI.ViewModels;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -15,7 +14,6 @@ public class MainViewModelTests
     private readonly Mock<IUnitOfWork> _MockUnitOfWork;
     private readonly Mock<ILocalizationService> _MockLocalizationService;
     private readonly Mock<IServiceProvider> _MockServiceProvider;
-    private readonly Mock<IHostEnvironment> _MockEnvironment;
 
     public MainViewModelTests()
     {
@@ -23,9 +21,6 @@ public class MainViewModelTests
         _MockUnitOfWork = new Mock<IUnitOfWork>();
         _MockLocalizationService = new Mock<ILocalizationService>();
         _MockServiceProvider = new Mock<IServiceProvider>();
-        _MockEnvironment = new Mock<IHostEnvironment>();
-
-        _MockEnvironment.Setup(e => e.EnvironmentName).Returns("Production");
         _MockLocalizationService.Setup(s => s.GetString(It.IsAny<string>())).Returns((string key) => $"Localized_{key}");
     }
 
@@ -40,12 +35,8 @@ public class MainViewModelTests
             _MockServiceProvider.Object);
 
         // Assert
-        var expectedTitle = $"Localized_{Constants.Localization.Keys.AppTitle}";
-#if DEBUG
-        expectedTitle = $"{expectedTitle} ({Constants.UI.DebugSuffix})";
-#elif QA
-        expectedTitle = $"{expectedTitle} ({Constants.UI.QASuffix})";
-#endif
+        var expectedTitle = Helpers.GetBrandedTitle();
+
         Assert.Equal(expectedTitle, vm.Title);
         Assert.Equal($"Localized_{Constants.Localization.Keys.WelcomeMessage}", vm.WelcomeMessage);
     }
