@@ -3,7 +3,11 @@ image: mcr.microsoft.com/dotnet/sdk:10.0
 default:
   tags:
     - gos-runner
+
 variables:
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
+  NUGET_PACKAGES: "$CI_PROJECT_DIR/.nuget/packages"
   GIT_STRATEGY: fetch
   GIT_SUBMODULE_STRATEGY: recursive
 
@@ -14,14 +18,7 @@ stages:
   - code_quality
   - publish
 
-variables:
-  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
-  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
-  NUGET_PACKAGES: "$CI_PROJECT_DIR/.nuget/packages"
-
 cache:
-  paths:
-    - .nuget/packages/
   key: ${CI_COMMIT_REF_SLUG}
   paths:
     - .nuget/packages/
@@ -35,25 +32,44 @@ restore:
   stage: restore
   script:
     - dotnet restore src/BoilerplateWPF.sln
+  artifacts:
+    paths:
+      - .nuget/packages/
+      - src/**/obj/
+      - src/**/bin/
 
 build:
   stage: build
+  needs: [restore]
   script:
     - dotnet build src/BoilerplateWPF.sln -c Release --no-restore
   artifacts:
     paths:
-      - src/**/bin/**
-      - src/**/obj/**
+      - src/**/bin/
+      - src/**/obj/
+
 
 test:
   stage: test
+  needs: [build]
   script:
-    # Run unit tests and capture XPlat coverage
-    - dotnet test src/App.UnitTests/App.UnitTests.csproj --collect:"XPlat Code Coverage" --results-directory TestResults --logger "trx;LogFileName=test_results.trx" --no-build
-    # Install reportgenerator and create reports (cobertura + html summary)
-    - dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.1.23 || true
-    - export PATH="$PATH:$HOME/.dotnet/tools"
-    - reportgenerator -reports:TestResults/**/coverage.*.xml -targetdir:CoverageReport -reporttypes:HtmlSummary,Cobertura || true
+    # Run unit tests + coverage
+    - dotnet test src/App.UnitTests/App.UnitTests.csproj `
+        --collect:"XPlat Code Coverage" `
+        --results-directory TestResults `
+        --logger "trx;LogFileName=test_results.trx" `
+        --no-build
+
+    # Install local tools for report generation
+    - dotnet new tool-manifest --force
+    - dotnet tool install dotnet-reportgenerator-globaltool --version 5.1.23
+
+    # Generate coverage reports
+    - dotnet tool run reportgenerator `
+        -reports:"TestResults/**/coverage.*.xml" `
+        -targetdir:"CoverageReport" `
+        -reporttypes:"HtmlSummary;Cobertura"
+
   artifacts:
     when: always
     paths:
@@ -63,23 +79,21 @@ test:
       junit: TestResults/**/*.trx
       coverage_report:
         coverage_format: cobertura
-        path: CoverageReport/*cobertura*.xml
+        path: CoverageReport/Cobertura.xml
   coverage: '/Coverage.*?([0-9]+\.?[0-9]*)%/'
 
 code_quality:
   stage: code_quality
+  needs: [build]
   script:
-    - dotnet tool install --global dotnet-format --version 7.0.255301 || true
-    - export PATH="$PATH:$HOME/.dotnet/tools"
-    - dotnet format --verify-no-changes --folder src || true
+    - dotnet new tool-manifest --force
+    - dotnet tool install dotnet-format --version 7.0.255301
+    - dotnet tool run dotnet-format --verify-no-changes --folder src
   allow_failure: true
-  artifacts:
-    when: always
-    paths:
-      - codequality/
 
 publish:
   stage: publish
+  needs: [build]
   script:
     - dotnet publish src/App.UI/App.UI.csproj -c Release -o publish_output --no-build
   artifacts:
