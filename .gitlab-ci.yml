@@ -22,11 +22,8 @@ cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
     - .nuget/packages/
-    - src/**/bin/
-    - src/**/obj/
-
-before_script:
-  - dotnet --info
+    - src/**/bin/**
+    - src/**/obj/**
 
 restore:
   stage: restore
