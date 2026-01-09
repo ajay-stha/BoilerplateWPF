@@ -52,7 +52,7 @@ test:
 
     # Install local tools for report generation
     - dotnet new tool-manifest --force
-    - dotnet tool install dotnet-reportgenerator-globaltool --version 5.1.23
+    - dotnet tool install dotnet-reportgenerator-globaltool
 
     # Generate coverage reports
     - dotnet tool run reportgenerator `
@@ -77,8 +77,47 @@ code_quality:
   needs: [build]
   script:
     - dotnet new tool-manifest --force
-    - dotnet tool install dotnet-format --version 7.0.255301
-    - dotnet tool run dotnet-format --verify-no-changes --folder src
+    - dotnet tool install JetBrains.ReSharper.GlobalTools
+    - dotnet tool install resharper-to-codeclimate
+    - $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
+    # Run InspectCode and output XML report
+    - jb inspectcode LocatorLink.sln --output=resharper-results.xml --format=Xml --no-build --no-swea
+    # Convert to CodeClimate JSON format
+    - resharper-to-codeclimate resharper-results.xml gl-code-quality-report.json
+    # Conditional filter on branch
+    - |
+      $branch = $env:CI_COMMIT_BRANCH
+      Write-Host "Current branch is: $branch"
+      if ($branch -eq "bajra_main") {
+        Write-Host "Full CodeQuality report will be used (no filtering)."
+      } else {
+        Write-Host "Filtering CodeQuality report to only include changed files..."
+
+        # Get list of changed files against default branch
+        $changedFiles = git diff --name-only origin/$env:CI_DEFAULT_BRANCH...$env:CI_COMMIT_SHA
+
+        # Read existing CodeClimate JSON report
+        $report = Get-Content gl-code-quality-report.json | ConvertFrom-Json
+
+        # Filter issues to only those whose file path is in changed files
+        $filtered = $report | Where-Object { $changedFiles -contains $_.location.path }
+
+        # Save filtered report back to JSON
+        $filtered | ConvertTo-Json -Depth 100 | Set-Content gl-code-quality-report.json
+      }
+    # Count issues and display for GitLab UI
+    - |
+      Write-Host "Counting total issues..."
+      $issueCount = $report.Count
+      Write-Host "ISSUES FOUND: $issueCount"
+  artifacts:
+      when: always
+      paths:
+        - resharper-results.xml
+        - gl-code-quality-report.json
+      reports:
+        codequality: gl-code-quality-report.json
+      expire_in: 1 day
   allow_failure: true
 
 publish:
