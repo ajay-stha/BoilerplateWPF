@@ -32,22 +32,12 @@ restore:
   stage: restore
   script:
     - dotnet restore src/BoilerplateWPF.sln
-  artifacts:
-    paths:
-      - .nuget/packages/
-      - src/**/obj/
-      - src/**/bin/
 
 build:
   stage: build
   needs: [restore]
   script:
     - dotnet build src/BoilerplateWPF.sln -c Release --no-restore
-  artifacts:
-    paths:
-      - src/**/bin/
-      - src/**/obj/
-
 
 test:
   stage: test
