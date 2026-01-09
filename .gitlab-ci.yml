@@ -2,7 +2,7 @@ image: mcr.microsoft.com/dotnet/sdk:10.0
 
 default:
   tags:
-    - bajra-windows
+    - gos-runner
 
 stages:
   - restore
