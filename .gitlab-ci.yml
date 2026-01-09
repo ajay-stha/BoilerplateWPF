@@ -1,5 +1,9 @@
 image: mcr.microsoft.com/dotnet/sdk:10.0
 
+default:
+  tags:
+    - saas-windows-medium-amd64
+
 stages:
   - restore
   - build
