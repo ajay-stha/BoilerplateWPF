@@ -52,7 +52,9 @@ test:
       - CoverageReport/
     reports:
       junit: TestResults/**/*.trx
-      cobertura: CoverageReport/*cobertura*.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: CoverageReport/*cobertura*.xml
   coverage: '/Coverage.*?([0-9]+\.?[0-9]*)%/'
 
 code_quality:
