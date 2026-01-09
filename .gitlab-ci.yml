@@ -27,9 +27,6 @@ restore:
   stage: restore
   script:
     - dotnet restore src/BoilerplateWPF.sln
-  artifacts:
-    paths:
-      - .nuget/packages/
 
 build:
   stage: build
