@@ -3,6 +3,9 @@ image: mcr.microsoft.com/dotnet/sdk:10.0
 default:
   tags:
     - gos-runner
+variables:
+  GIT_STRATEGY: fetch
+  GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
   - restore
@@ -19,6 +22,11 @@ variables:
 cache:
   paths:
     - .nuget/packages/
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .nuget/packages/
+    - src/**/bin/
+    - src/**/obj/
 
 before_script:
   - dotnet --info
