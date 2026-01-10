@@ -11,9 +11,12 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
 cache:
-  key: nuget
+  key: cache-dotnet
   paths:
     - $USERPROFILE/.nuget/packages/
+    - src/**/obj/
+    - src/**/bin/
+
 
 stages:
   - restore
