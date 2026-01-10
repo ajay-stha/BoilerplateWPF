@@ -7,11 +7,13 @@ default:
 variables:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
-
-  NUGET_PACKAGES: ";$env:USERPROFILE\\nuget"
-
   GIT_STRATEGY: fetch
   GIT_SUBMODULE_STRATEGY: recursive
+
+cache:
+  key: nuget
+  paths:
+    - $USERPROFILE/.nuget/packages/
 
 stages:
   - restore
