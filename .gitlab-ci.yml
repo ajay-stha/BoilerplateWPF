@@ -7,16 +7,12 @@ default:
 variables:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
-  GIT_STRATEGY: fetch
   GIT_SUBMODULE_STRATEGY: recursive
 
 cache:
   key: cache-dotnet
   paths:
     - $USERPROFILE/.nuget/packages/
-    - src/**/obj/
-    - src/**/bin/
-
 
 stages:
   - restore
@@ -27,18 +23,24 @@ stages:
 
 restore:
   stage: restore
+  variables:
+    GIT_STRATEGY: fetch
   script:
     - dotnet restore src/BoilerplateWPF.sln
 
 build:
   stage: build
   needs: ["restore"]
+  variables:
+    GIT_STRATEGY: none
   script:
     - dotnet build src/BoilerplateWPF.sln -c Release --no-restore
 
 test:
   stage: test
   needs: ["build"]
+  variables:
+    GIT_STRATEGY: none
   script:
     - dotnet test src/App.UnitTests/App.UnitTests.csproj `
         --no-build `
@@ -68,6 +70,8 @@ test:
 code_quality:
   stage: code_quality
   needs: ["build"]
+  variables:
+    GIT_STRATEGY: none
   allow_failure: true
   script:
     - dotnet new tool-manifest --force
@@ -118,6 +122,8 @@ code_quality:
 publish:
   stage: publish
   needs: ["build"]
+  variables:
+    GIT_STRATEGY: none
   script:
     - dotnet publish src/App.UI/App.UI.csproj `
         -c Release `
