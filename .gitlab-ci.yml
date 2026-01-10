@@ -56,6 +56,9 @@ test:
         -targetdir:"CoverageReport" `
         -reporttypes:"HtmlSummary;Cobertura"
 
+    - $coverageLine = (Select-String -Path "./CoverageReport/Cobertura.xml" -Pattern 'line-rate="([0-9.]+)"').Matches[0].Groups[1].Value
+    - $coveragePercent = [math]::Round([double]$coverageLine * 100, 2)
+    - echo "Coverage $coveragePercent%"
   artifacts:
     when: always
     paths:
