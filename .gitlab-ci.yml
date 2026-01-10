@@ -34,7 +34,7 @@ build:
   variables:
     GIT_STRATEGY: none
   script:
-    - dotnet build src/BoilerplateWPF.sln -c Release --no-restore
+    - dotnet build src/BoilerplateWPF.sln -c $env:BUILD_CONFIGURATION --no-restore
 
 test:
   stage: test
@@ -42,7 +42,7 @@ test:
   variables:
     GIT_STRATEGY: none
   script:
-    - dotnet test src/App.UnitTests/App.UnitTests.csproj `
+    - dotnet test src/App.UnitTests/App.UnitTests.csproj -c $env:BUILD_CONFIGURATION`
         --no-build `
         --collect:"XPlat Code Coverage" `
         --results-directory TestResults `
@@ -126,7 +126,7 @@ publish:
     GIT_STRATEGY: none
   script:
     - dotnet publish src/App.UI/App.UI.csproj `
-        -c Release `
+        -c BUILD_CONFIGURATION `
         -o publish_output `
         --no-build
   artifacts:
