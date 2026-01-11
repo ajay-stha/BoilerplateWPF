@@ -62,7 +62,6 @@ public partial class MainViewModel : BaseViewModel
     private void ShowAbout()
     {
         var aboutWindow = _ServiceProvider.GetRequiredService<AboutWindow>();
-        aboutWindow.Owner = System.Windows.Application.Current.MainWindow;
         aboutWindow.ShowDialog();
     }
 
