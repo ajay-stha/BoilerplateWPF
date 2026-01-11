@@ -71,10 +71,9 @@ reportgenerator -reports:TestResults/**/coverage.*.xml -targetdir:CoverageReport
 
 The GitLab CI pipeline included in the repo already uploads `CoverageReport/Cobertura.xml` and prints a `Coverage: <n>%` line for GitLab to pick up coverage metrics.
 
-**CI (GitLab)**
+**CI (GitHub)**
 
-- Pipeline file: `/.gitlab-ci.yml` — stages: restore, build, test, code_quality, publish.
-- Runner tag configured via `default.tags` in the CI YAML. Adjust to match your runner if necessary.
+- Pipeline file: `/.gihub/workflows/ci.yml` — stages: restore, build, test, code_quality, publish.
 
 **Troubleshooting**
 
