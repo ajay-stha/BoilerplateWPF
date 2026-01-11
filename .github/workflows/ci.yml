@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master, feat/*, feat/** ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-windows:
+    name: Build, Test, Coverage, CodeQuality, Publish (Windows)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore src/BoilerplateWPF.sln
+
+      - name: Build
+        run: dotnet build src/BoilerplateWPF.sln -c Release --no-restore
+
+      - name: Test and collect coverage
+        shell: pwsh
+        run: |
+          dotnet test src/App.UnitTests/App.UnitTests.csproj -c Release --collect:"XPlat Code Coverage" --results-directory TestResults --logger "trx;LogFileName=test_results.trx"
+          dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.1.23 || true
+          $env:PATH = "$env:USERPROFILE\.dotnet\tools;" + $env:PATH
+          reportgenerator -reports:"TestResults/**/coverage.*.xml" -targetdir:"CoverageReport" -reporttypes:Cobertura
+          if (Test-Path "CoverageReport/Cobertura.xml") {
+            $n = Select-Xml -Path "CoverageReport/Cobertura.xml" -XPath "/coverage"
+            if ($n) { $pct = [math]::Round([double]$n.Node.Attributes['line-rate'].Value * 100, 2); Write-Host "Coverage: $pct%" }
+            else { Write-Host "Coverage: 0%" }
+          } else {
+            Write-Host "CoverageReport/Cobertura.xml not found"
+          }
+
+      - name: Upload test & coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-and-coverage
+          path: |
+            TestResults
+            CoverageReport
+
+      - name: Code quality (ReSharper -> CodeClimate)
+        shell: pwsh
+        run: |
+          dotnet new tool-manifest --force
+          dotnet tool install JetBrains.ReSharper.GlobalTools
+          dotnet tool install resharper-to-codeclimate
+          dotnet tool run jb inspectcode src/BoilerplateWPF.sln --output=resharper-results.xml --format=Xml --no-build --no-swea
+          dotnet tool run resharper-to-codeclimate resharper-results.xml gl-code-quality-report.json
+
+      - name: Upload code quality report
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-quality
+          path: gl-code-quality-report.json
+
+      - name: Publish app artifact
+        run: dotnet publish src/App.UI/App.UI.csproj -c Release -o publish_output --no-build
+
+      - name: Upload published app
+        uses: actions/upload-artifact@v4
+        with:
+          name: publish-output
+          path: publish_output

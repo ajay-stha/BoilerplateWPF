@@ -1,0 +1,140 @@
+image: mcr.microsoft.com/dotnet/sdk:10.0
+
+default:
+  tags:
+    - gos-runner
+
+variables:
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
+  GIT_SUBMODULE_STRATEGY: recursive
+
+cache:
+  key: cache-dotnet
+  paths:
+    - $USERPROFILE/.nuget/packages/
+
+stages:
+  - restore
+  - build
+  - test
+  - code_quality
+  - publish
+
+restore:
+  stage: restore
+  variables:
+    GIT_STRATEGY: fetch
+  script:
+    - dotnet restore src/BoilerplateWPF.sln
+
+build:
+  stage: build
+  needs: ["restore"]
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - dotnet build src/BoilerplateWPF.sln -c $env:BUILD_CONFIGURATION --no-restore
+
+test:
+  stage: test
+  needs: ["build"]
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - dotnet test src/App.UnitTests/App.UnitTests.csproj -c $env:BUILD_CONFIGURATION`
+        --no-build `
+        --collect:"XPlat Code Coverage" `
+        --results-directory TestResults `
+        --logger "trx;LogFileName=test_results.trx"
+
+    - dotnet new tool-manifest --force
+    - dotnet tool install dotnet-reportgenerator-globaltool
+
+    - dotnet tool run reportgenerator `
+        -reports:"TestResults/**/coverage.*.xml" `
+        -targetdir:"CoverageReport" `
+        -reporttypes:"HtmlSummary;Cobertura"
+
+    - $coverageLine = (Select-String -Path "./CoverageReport/Cobertura.xml" -Pattern 'line-rate="([0-9.]+)"').Matches[0].Groups[1].Value
+    - $coveragePercent = [math]::Round([double]$coverageLine * 100, 2)
+    - echo "Coverage $coveragePercent%"
+  artifacts:
+    when: always
+    paths:
+      - TestResults/
+      - CoverageReport/
+    reports:
+      junit: TestResults/**/*.trx
+      coverage_report:
+        coverage_format: cobertura
+        path: CoverageReport/Cobertura.xml
+  coverage: '/Coverage.*?([0-9]+\.?[0-9]*)%/'
+
+code_quality:
+  stage: code_quality
+  needs: ["build"]
+  variables:
+    GIT_STRATEGY: none
+  allow_failure: true
+  script:
+    - dotnet new tool-manifest --force
+    - dotnet tool install JetBrains.ReSharper.GlobalTools
+    - dotnet tool install resharper-to-codeclimate
+
+    - $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
+
+    - jb inspectcode src/BoilerplateWPF.sln `
+        --output=resharper-results.xml `
+        --format=Xml `
+        --no-build `
+        --no-swea
+
+    - resharper-to-codeclimate resharper-results.xml gl-code-quality-report.json
+
+    - |
+      $branch = $env:CI_COMMIT_BRANCH
+      Write-Host "Current branch: $branch"
+
+      $report = Get-Content gl-code-quality-report.json | ConvertFrom-Json
+
+      if ($branch -ne "bajra_main") {
+        Write-Host "Filtering CodeQuality to changed files only..."
+
+        $changedFiles = git diff --name-only `
+          origin/$env:CI_DEFAULT_BRANCH...$env:CI_COMMIT_SHA
+
+        $report = $report | Where-Object {
+          $changedFiles -contains $_.location.path
+        }
+
+        $report | ConvertTo-Json -Depth 100 |
+          Set-Content gl-code-quality-report.json
+      }
+
+      Write-Host "ISSUES FOUND: $($report.Count)"
+
+  artifacts:
+    when: always
+    paths:
+      - resharper-results.xml
+      - gl-code-quality-report.json
+    reports:
+      codequality: gl-code-quality-report.json
+    expire_in: 1 day
+
+publish:
+  stage: publish
+  needs: ["build"]
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - dotnet publish src/App.UI/App.UI.csproj `
+        -c $env:BUILD_CONFIGURATION `
+        -o publish_output `
+        --no-build
+  artifacts:
+    when: always
+    paths:
+      - publish_output/
+    expire_in: 1 week
