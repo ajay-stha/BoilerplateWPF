@@ -6,7 +6,7 @@ on:
       - 'v*.*.*'
 
 jobs:
-  build:
+  Release:
     runs-on: windows-latest
 
     steps:
@@ -23,9 +23,6 @@ jobs:
 
     - name: Publish
       run: dotnet publish src/App.UI/App.UI.csproj -c Release -o publish_output --no-restore
-
-    - name: Zip output
-      run: Compress-Archive -Path publish/* -DestinationPath MyApp-win-x64.zip
 
     - name: Create Release
       uses: softprops/action-gh-release@v2
