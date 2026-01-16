@@ -48,6 +48,13 @@ jobs:
             TestResults
             CoverageReport
 
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        with:
+          name: Results Of CSM Enterprise Unit-Test
+          path: 'TestResults/*.trx'
+          reporter: dotnet-trx
+
       - name: Code quality (ReSharper -> CodeClimate)
         shell: pwsh
         run: |
@@ -62,12 +69,3 @@ jobs:
         with:
           name: code-quality
           path: gl-code-quality-report.json
-
-      - name: Publish app artifact
-        run: dotnet publish src/App.UI/App.UI.csproj -c Release -o publish_output --no-build
-
-      - name: Upload published app
-        uses: actions/upload-artifact@v4
-        with:
-          name: publish-output
-          path: publish_output
