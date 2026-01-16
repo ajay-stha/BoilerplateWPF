@@ -2,9 +2,13 @@ name: CI
 
 on:
   push:
-    branches: [ main, master, feat/*, feat/** ]
+    branches: [ main ]
   pull_request:
     branches: [ main, master ]
+
+permissions:
+  checks: write
+  contents: read
 
 jobs:
   build-windows:
@@ -18,15 +22,6 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '10.0.x'
-
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
 
       - name: Restore
         run: dotnet restore src/BoilerplateWPF.sln
@@ -57,6 +52,13 @@ jobs:
             TestResults
             CoverageReport
 
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        with:
+          name: Results Of CSM Enterprise Unit-Test
+          path: '**/*.trx'
+          reporter: dotnet-trx
+
       - name: Code quality (ReSharper -> CodeClimate)
         shell: pwsh
         run: |
@@ -71,12 +73,3 @@ jobs:
         with:
           name: code-quality
           path: gl-code-quality-report.json
-
-      - name: Publish app artifact
-        run: dotnet publish src/App.UI/App.UI.csproj -c Release -o publish_output --no-build
-
-      - name: Upload published app
-        uses: actions/upload-artifact@v4
-        with:
-          name: publish-output
-          path: publish_output
