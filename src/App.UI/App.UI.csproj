@@ -9,6 +9,11 @@
     <Version>1.0.0</Version>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <ApplicationIcon>Resources\Images\icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'QA'">
@@ -28,9 +33,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <None Update="appsettings.json;appsettings.*.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <EmbeddedResource Include="appsettings.json" />
+    <EmbeddedResource Include="appsettings.DEV.json" />
+    <EmbeddedResource Include="appsettings.QA.json" />
     <Resource Include="Resources\Images\icon.png" />
   </ItemGroup>
 
