@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main, master ]
 
+permissions:
+  checks: write
+  contents: read
+
 jobs:
   build-windows:
     name: Build, Test, Coverage, CodeQuality, Publish (Windows)
@@ -52,7 +56,7 @@ jobs:
         uses: dorny/test-reporter@v1
         with:
           name: Results Of CSM Enterprise Unit-Test
-          path: 'TestResults/*.trx'
+          path: '**/*.trx'
           reporter: dotnet-trx
 
       - name: Code quality (ReSharper -> CodeClimate)
