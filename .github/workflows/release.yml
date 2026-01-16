@@ -22,7 +22,7 @@ jobs:
       run: dotnet restore
 
     - name: Publish
-      run: dotnet publish -c Release -o publish
+      run: dotnet publish src/App.UI/App.UI.csproj -c Release -o publish_output --no-restore
 
     - name: Zip output
       run: Compress-Archive -Path publish/* -DestinationPath MyApp-win-x64.zip
@@ -30,4 +30,4 @@ jobs:
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        files: publish/App.UI.exe
+        files: publish_output/App.UI.exe
