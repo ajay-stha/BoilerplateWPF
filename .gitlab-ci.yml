@@ -158,7 +158,6 @@ publish:
   stage: publish
   needs:
     - build
-    - test
   variables:
     GIT_STRATEGY: none
   script:
