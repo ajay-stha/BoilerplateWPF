@@ -12,7 +12,7 @@ workflow:
 
 default:
   tags:
-    - gos-runner
+    - shared-docker-1
 
 variables:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
@@ -196,7 +196,6 @@ create_release:
 
       **Commit:** $CI_COMMIT_SHA  
       **Pipeline:** $CI_PIPELINE_URL  
-      **Published on:** $(date -u)
 
       ### Changes
       - See commit history for details
