@@ -195,7 +195,7 @@ create_release:
       $jobId = $env:CI_JOB_ID
       $projectUrl = $env:CI_PROJECT_URL
 
-      $assetsJson = @"{"name":"App","url":"$projectUrl/-/jobs/$jobId/artifacts/download","link_type":"other"}"@
+      $assetsJson = "{""name"":""App"",""url"":""$env:CI_PROJECT_URL/-/jobs/$env:CI_JOB_ID/artifacts/download"",""link_type"":""other""}"
 
       .\release-cli.exe create `
           --name "Release $tag" `
