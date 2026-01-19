@@ -188,7 +188,23 @@ create_release:
   script:
     - echo "Creating release for tag $CI_COMMIT_TAG"
     - Invoke-WebRequest -Uri "https://gitlab.com/gitlab-org/release-cli/-/releases/v0.24.0/downloads/bin/release-cli-windows-amd64.exe" -OutFile "release-cli.exe"
-    - .\release-cli.exe create --name "Release $CI_COMMIT_TAG" `
-        --tag-name "$CI_COMMIT_TAG" `
-        --description "## 🚀 Release $CI_COMMIT_TAG`n`n**Commit:** $CI_COMMIT_SHA  `n**Pipeline:** $CI_PIPELINE_URL  `n`n### Changes`n- See commit history for details" `
-        --assets-link '{"name":"App","url":"$CI_PROJECT_URL/-/jobs/$CI_JOB_ID/artifacts/download"}'
+    - |
+      $tag = $env:CI_COMMIT_TAG
+      $sha = $env:CI_COMMIT_SHA
+      $pipeline = $env:CI_PIPELINE_URL
+      $jobId = $env:CI_JOB_ID
+      $projectUrl = $env:CI_PROJECT_URL
+
+      $assetsJson = @"
+      [{
+        "name": "App",
+        "url": "$projectUrl/-/jobs/$jobId/artifacts/download",
+        "link_type": "other"
+      }]
+      "@
+
+      .\release-cli.exe create `
+          --name "Release $tag" `
+          --tag-name "$tag" `
+          --description "## 🚀 Release $tag`n`n**Commit:** $sha`n**Pipeline:** $pipeline`n`n### Changes`n- See commit history for details" `
+          --assets-link $assetsJson
