@@ -89,11 +89,11 @@ test:
         path: CoverageReport/Cobertura.xml
   coverage: '/Coverage.*?([0-9]+\.?[0-9]*)%/'
   retry:
-  max: 2
-  when:
-    - runner_system_failure
-    - stuck_or_timeout_failure
-    - script_failure
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+      - script_failure
   rules:
     - when: on_success 
 
