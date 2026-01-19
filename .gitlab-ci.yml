@@ -10,7 +10,7 @@ workflow:
 
 default:
   tags:
-    - windows-shell
+    - gos-runner
 
 variables:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
