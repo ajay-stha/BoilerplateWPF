@@ -187,8 +187,7 @@ create_release:
 
   script:
     - echo "Creating release for tag $CI_COMMIT_TAG"
-    - Invoke-WebRequest -Uri "https://gitlab.com/gitlab-org/release-cli/-/releases/v0.24.0/downloads/bin/release-cli-windows-amd64.exe" -OutFile "$env:USERPROFILE\release-cli.exe"
-    - $env:PATH += ";$env:USERPROFILE" 
+    - Invoke-WebRequest -Uri "https://gitlab.com/gitlab-org/release-cli/-/releases/v0.24.0/downloads/bin/release-cli-windows-amd64.exe" -OutFile "release-cli.exe"
 
   release:
     name: "Release $CI_COMMIT_TAG"
