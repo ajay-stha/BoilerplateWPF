@@ -1,8 +1,16 @@
 image: mcr.microsoft.com/dotnet/sdk:10.0
 
+workflow:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "bajra_develop" || $CI_COMMIT_BRANCH == "bajra_main"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+    - when: never
+
 default:
   tags:
-    - gos-runner
+    - windows-shell
 
 variables:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
