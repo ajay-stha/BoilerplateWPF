@@ -120,9 +120,7 @@ code_quality:
 
       Write-Host "Processing $($report.Count) code quality issues..."
       $report | ForEach-Object {
-        Write-Host "Original: $($_.location.path)"
         $_.location.path = "src/" + $_.location.path
-        Write-Host "Modified: $($_.location.path)"
         $_
       } | ConvertTo-Json -Depth 100 | Set-Content gl-code-quality-report.json
 
