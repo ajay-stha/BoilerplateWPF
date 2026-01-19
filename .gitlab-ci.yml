@@ -2,6 +2,8 @@ image: mcr.microsoft.com/dotnet/sdk:10.0
 
 workflow:
   rules:
+    - if: '$CI_COMMIT_TAG'
+      when: always
     - if: '$CI_COMMIT_BRANCH == "bajra_develop" || $CI_COMMIT_BRANCH == "bajra_main"'
       when: always
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
@@ -22,6 +24,7 @@ stages:
   - test
   - code_quality
   - publish
+  - release
 
 build:
   stage: build
@@ -147,7 +150,9 @@ code_quality:
 
 publish:
   stage: publish
-  needs: ["build"]
+  needs:
+    - build
+    - test
   variables:
     GIT_STRATEGY: none
   script:
@@ -156,6 +161,7 @@ publish:
         -o publish_output `
         --no-build
   artifacts:
+    name: "App-$CI_COMMIT_TAG"
     when: always
     paths:
       - publish_output/
@@ -164,3 +170,33 @@ publish:
     - if: '$CI_COMMIT_TAG'
       when: always
     - when: never
+
+create_release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs:
+    - publish
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      when: always
+    - when: never
+
+  script:
+    - echo "Creating release for tag $CI_COMMIT_TAG"
+
+  release:
+    name: "Release $CI_COMMIT_TAG"
+    tag_name: "$CI_COMMIT_TAG"
+    description: |
+      ## 🚀 Release $CI_COMMIT_TAG
+
+      **Commit:** $CI_COMMIT_SHA  
+      **Pipeline:** $CI_PIPELINE_URL  
+      **Published on:** $(date -u)
+
+      ### Changes
+      - See commit history for details
+    assets:
+      links:
+        - name: "Published App"
+          url: "$CI_PROJECT_URL/-/jobs/$CI_JOB_ID/artifacts/download"
