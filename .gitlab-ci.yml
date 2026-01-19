@@ -92,7 +92,6 @@ test:
 
 code_quality:
   stage: code_quality
-  needs: ["build"]
   variables:
     GIT_STRATEGY: none
   allow_failure: true
@@ -107,7 +106,6 @@ code_quality:
     - $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
 
   script:
-    - dir src/
     - jb inspectcode src/BoilerplateWPF.sln `
         --output=resharper-results.xml `
         --format=Xml `
