@@ -198,7 +198,7 @@ create_release:
       # $assetsJson = "{""name"":""App"",""url"":""$env:CI_PROJECT_URL/-/jobs/$env:CI_JOB_ID/artifacts/download"",""link_type"":""other""}" `
       .\release-cli.exe create --name release-branch-$CI_JOB_ID --description release-branch-$CI_COMMIT_REF_NAME-$CI_JOB_ID `
       --tag-name job-$CI_JOB_ID --ref $CI_COMMIT_SHA `
-      --assets-link '{"name":"Asset1","url":"https://git.bajratechnologies.com/ajay-stha/boilerplatewpf/-/jobs/110024/artifacts/download","link_type":"other"}' 
+      --assets-link '{\"name\":\"Asset1\",\"url\":\"https://git.bajratechnologies.com/ajay-stha/boilerplatewpf/-/jobs/110024/artifacts/download\",\"link_type\":\"other\"}' 
 
       # .\release-cli.exe create `
       #     --name "Release $tag" `
