@@ -85,7 +85,9 @@ test:
       - stuck_or_timeout_failure
       - script_failure
   rules:
-    - when: on_success 
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    - when: on_success
 
 
 code_quality:
@@ -94,6 +96,10 @@ code_quality:
   variables:
     GIT_STRATEGY: none
   allow_failure: true
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    - when: on_success
   before_script:
     - dotnet new tool-manifest --force
     - dotnet tool install JetBrains.ReSharper.GlobalTools
@@ -173,7 +179,6 @@ publish:
 
 create_release:
   stage: release
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
   needs:
     - publish
   rules:
