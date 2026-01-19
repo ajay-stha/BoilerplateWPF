@@ -18,15 +18,13 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
-  - restore
   - build
   - test
   - code_quality
   - publish
 
 build:
-  stage: build and restore
-  needs: ["restore"]
+  stage: build
   variables:
     GIT_STRATEGY: fetch
   script:
