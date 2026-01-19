@@ -12,7 +12,7 @@ workflow:
 
 default:
   tags:
-    - gos-runner
+    - windows-shell
 
 variables:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
@@ -199,10 +199,9 @@ create_release:
       $projectUrl = $env:CI_PROJECT_URL
 
       $assetsJson = '{\"name\":\"App\",\"url\":\"' + $projectUrl + '/-/jobs/' + $PUBLISH_JOB_ID + '/artifacts/download\",\"link_type\":\"other\"}'
-      echo $assetsJson
 
       .\release-cli.exe create `
           --name "Release $tag" `
           --tag-name "$tag" `
-          --description "## 🚀 Release $tag`n`n**Commit:** $sha`n**Pipeline:** $pipeline`n`n### Changes`n- See commit history for details" `
+          --description "## Release $tag`n`n**Commit:** $sha`n**Pipeline:** $pipeline`n`n### Changes`n- See commit history for details" `
           --assets-link $assetsJson
