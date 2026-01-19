@@ -17,11 +17,6 @@ variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
   GIT_SUBMODULE_STRATEGY: recursive
 
-cache:
-  key: cache-dotnet
-  paths:
-    - $USERPROFILE/.nuget/packages/
-
 stages:
   - restore
   - build
@@ -29,19 +24,13 @@ stages:
   - code_quality
   - publish
 
-restore:
-  stage: restore
+build:
+  stage: build and restore
+  needs: ["restore"]
   variables:
     GIT_STRATEGY: fetch
   script:
     - dotnet restore src/BoilerplateWPF.sln
-
-build:
-  stage: build
-  needs: ["restore"]
-  variables:
-    GIT_STRATEGY: none
-  script:
     - dotnet build src/BoilerplateWPF.sln -c $env:BUILD_CONFIGURATION --no-restore
 
 test:
@@ -139,6 +128,10 @@ code_quality:
         $report | ConvertTo-Json -Depth 100 |
           Set-Content gl-code-quality-report.json
       }
+
+      $report | ForEach-Object {
+        $_.location.path = "src/" + $_.location.path
+      } | ConvertTo-Json -Depth 100 | Set-Content gl-code-quality-report.json
 
       Write-Host "ISSUES FOUND: $($report.Count)"
 
