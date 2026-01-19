@@ -129,7 +129,9 @@ code_quality:
 
       $report | ForEach-Object {
         $_.location.path = "src/" + $_.location.path
-      } | ConvertTo-Json -Depth 100 | Set-Content gl-code-quality-report.json
+      }
+
+      $report | ConvertTo-Json -Depth 100 | Set-Content gl-code-quality-report.json
 
       Write-Host "ISSUES FOUND: $($report.Count)"
 
