@@ -45,19 +45,12 @@ test:
     - dotnet tool restore
 
   script:
-    - dotnet test "src/App.UnitTests/App.UnitTests.csproj" -c $env:BUILD_CONFIGURATION `
-        --collect:"XPlat Code Coverage" `
+    - dotnet test "src\App.UnitTests\App.UnitTests.csproj" `
+        -c $env:BUILD_CONFIGURATION `
+        --settings coverlet.runsettings `
         --results-directory "TestResults" `
         --logger "trx;LogFileName=test_results.trx" `
-        --logger "junit;LogFileName=test_results.xml" `
-        /p:CollectCoverage=true `
-        /p:CoverletOutput="TestResults/coverage.opencover.xml" `
-        /p:CoverletOutputFormat=opencover `
-        /p:ExcludeByFile="**/*.xaml.cs" `
-        /p:ExcludeByFile="**/*.xaml" `
-        /p:ExcludeByFile="**/Extensions/**/*.cs" `
-        /p:ExcludeByFile="**/Models/**/*.cs" `
-        /p:ExcludeByFile="**/Converters/**/*.cs"
+        --logger "junit;LogFileName=test_results.xml"
 
     - dotnet tool run reportgenerator `
         -reports:"TestResults/**/coverage.*.xml" `
