@@ -1,6 +1,7 @@
 ﻿using App.Application.Interfaces;
 using App.Common;
 using App.Domain.Entities;
+using App.UI.Factory;
 using AppUI.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -17,7 +18,7 @@ public partial class MainViewModel : BaseViewModel
     private readonly ILogger<MainViewModel> _Logger;
     private readonly IUnitOfWork _UnitOfWork;
     private readonly ILocalizationService _LocalizationService;
-    private readonly IServiceProvider _ServiceProvider;
+    private readonly IWindowFactory _WindowFactory;
 
     [ObservableProperty]
     private string _WelcomeMessage = string.Empty;
@@ -29,12 +30,12 @@ public partial class MainViewModel : BaseViewModel
         ILogger<MainViewModel> logger,
         IUnitOfWork unitOfWork,
         ILocalizationService localizationService,
-        IServiceProvider serviceProvider)
+        IWindowFactory windowFactory)
     {
         _Logger = logger;
         _UnitOfWork = unitOfWork;
         _LocalizationService = localizationService;
-        _ServiceProvider = serviceProvider;
+        _WindowFactory = windowFactory;
 
         UpdateMetadata(_LocalizationService);
         WelcomeMessage = _LocalizationService.GetString(Constants.Localization.Keys.WelcomeMessage);
@@ -61,8 +62,7 @@ public partial class MainViewModel : BaseViewModel
     [RelayCommand]
     private void ShowAbout()
     {
-        var aboutWindow = _ServiceProvider.GetRequiredService<AboutWindow>();
-        aboutWindow.ShowDialog();
+        _WindowFactory.ShowAboutWindow();
     }
 
     [RelayCommand]

@@ -12,7 +12,7 @@ namespace App.Infrastructure.DI;
 /// <summary>
 /// Static class to build the service container, similar to the reference pattern.
 /// </summary>
-public static class ContainerBuilder
+public class ContainerBuilder
 {
     public static void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {

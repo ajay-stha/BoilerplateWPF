@@ -1,7 +1,7 @@
 ﻿using App.Application.Interfaces;
 using App.Common;
 using App.Infrastructure.DI;
-using App.UI.Helpers;
+using App.UI.Factory;
 using AppUI.ViewModels;
 using AppUI.Views;
 using Microsoft.Extensions.Configuration;
@@ -99,6 +99,7 @@ public partial class App : System.Windows.Application
         services.AddSingleton<MainWindow>();
         services.AddSingleton<MainViewModel>();
         services.AddTransient<AboutWindow>();
+        services.AddTransient<IWindowFactory, WindowFactory>();
         services.AddTransient<AboutViewModel>();
 
         // Infrastructure Services (Dynamic Loading to honor Clean Architecture boundaries)
@@ -109,6 +110,26 @@ public partial class App : System.Windows.Application
     {
         try
         {
+            //Load App.Infrastructure.dll
+            //var assemblyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Constants.Infrastructure.InfrastructureDll);
+            //if (!File.Exists(assemblyPath))
+            //{
+            //    // Fallback for development if bin folder structure is different
+            //    assemblyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "App.Infrastructure", "bin", "Debug", "net10.0", Constants.Infrastructure.InfrastructureDll);
+            //}
+
+            //var assembly = Assembly.LoadFrom(assemblyPath);
+            //var type = assembly.GetType(Constants.Infrastructure.ContainerBuilderType);
+            //var method = type?.GetMethod(Constants.Infrastructure.RegisterServicesMethod, BindingFlags.Public | BindingFlags.Static);
+
+            //if (method != null)
+            //{
+            //    method.Invoke(null, new object[] { services, configuration });
+            //}
+            //else
+            //{
+            //    throw new InvalidOperationException($"Could not find {Constants.Infrastructure.RegisterServicesMethod} method in {Constants.Infrastructure.InfrastructureDll}.");
+            //}
             // Register infrastructure services into the provided IServiceCollection
             ContainerBuilder.RegisterServices(services, configuration);
         }
