@@ -32,7 +32,7 @@ jobs:
       - name: Test and collect coverage
         shell: pwsh
         run: |
-          dotnet test src/App.UnitTests/App.UnitTests.csproj -c Release --collect:"XPlat Code Coverage" --results-directory TestResults --logger "trx;LogFileName=test_results.trx"
+          dotnet test src/App.UnitTests/App.UnitTests.csproj -c Release --settings coverlet.runsettings --results-directory "TestResults" --logger "trx;LogFileName=test_results.trx" --logger "junit;LogFileName=test_results.xml"
           dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.1.23 || true
           $env:PATH = "$env:USERPROFILE\.dotnet\tools;" + $env:PATH
           reportgenerator -reports:"TestResults/**/coverage.*.xml" -targetdir:"CoverageReport" -reporttypes:Cobertura
